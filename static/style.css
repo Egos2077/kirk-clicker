@@ -1,0 +1,549 @@
+/* style.css - FIXED VERSION */
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-image: url('/static/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+/* Override Bootstrap container for game layout */
+.container {
+    padding-top: 80px; /* Space for fixed navbar */
+}
+
+/* GAME TITLE */
+.game-title {
+    font-size: 5rem;
+    font-weight: 900;
+    text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.7);
+    margin-bottom: 2rem;
+    color: white;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-align: center;
+    width: 100%;
+}
+
+@media (max-width: 1200px) {
+    .game-title {
+        font-size: 4rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-title {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .game-title {
+        font-size: 2.5rem;
+        letter-spacing: 2px;
+    }
+}
+
+/* KIRK BOX (LEFT SIDE) */
+.kirk-box {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    border-left: 12px solid rgba(255, 255, 255, 0.7);
+    padding: 2rem 3rem;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    position: relative;
+    margin: 0 auto;
+}
+
+/* Cloudy white glow effect */
+.kirk-box::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -18px;
+    right: -6px;
+    bottom: -6px;
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.3), 
+        rgba(255, 255, 255, 0.2),
+        rgba(255, 255, 255, 0.1));
+    border-radius: 31px;
+    z-index: -1;
+    filter: blur(12px);
+    opacity: 0.8;
+}
+
+/* Left border accent */
+.kirk-box::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: -9px;
+    width: 10px;
+    height: 70%;
+    background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.9),
+        rgba(255, 255, 255, 0.7),
+        rgba(255, 255, 255, 0.5),
+        rgba(255, 255, 255, 0.7),
+        rgba(255, 255, 255, 0.9));
+    border-radius: 5px;
+    filter: blur(1px);
+}
+
+/* COUNTER */
+.counter {
+    font-size: 3.5rem !important;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: #111;
+    text-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+    font-weight: 900;
+    letter-spacing: 2px;
+    width: 100%;
+}
+
+/* Counter increase animation */
+@keyframes counterPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.counter-pop {
+    animation: counterPop 0.4s ease-in-out !important;
+    animation-fill-mode: both !important;
+}
+
+/* Income pulse for auto-generated Kirks */
+@keyframes incomePulse {
+    0% { 
+        color: #111;
+        text-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+    }
+    50% { 
+        color: #51cf66;
+        text-shadow: 0 0 8px rgba(81, 207, 102, 0.4);
+    }
+    100% { 
+        color: #111;
+        text-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+    }
+}
+
+.income-pulse {
+    animation: incomePulse 0.3s ease-in-out !important;
+    animation-fill-mode: both !important;
+}
+
+/* CLICKABLE KIRK IMAGE */
+.clickable-image {
+    width: 300px;
+    height: 300px;
+    cursor: pointer;
+    object-fit: cover;
+    border: 6px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+    border-radius: 15px;
+    transition: all 0.2s ease;
+    display: block;
+    margin: 0 auto;
+    transform-origin: center center;
+    position: relative;
+    z-index: 1;
+}
+
+.clickable-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+    border-color: rgba(255, 255, 255, 0.95);
+    transition: all 0.2s ease;
+}
+
+/* Wobble animation */
+@keyframes wobble {
+    0% { 
+        transform: rotate(0deg) scale(1); 
+    }
+    15% { 
+        transform: rotate(-10deg) scale(1.1); 
+    }
+    30% { 
+        transform: rotate(8deg) scale(1.08); 
+    }
+    45% { 
+        transform: rotate(-6deg) scale(1.06); 
+    }
+    60% { 
+        transform: rotate(4deg) scale(1.04); 
+    }
+    75% { 
+        transform: rotate(-2deg) scale(1.02); 
+    }
+    90% { 
+        transform: rotate(1deg) scale(1.01); 
+    }
+    100% { 
+        transform: rotate(0deg) scale(1); 
+    }
+}
+
+.wobble {
+    animation: wobble 0.6s ease-in-out;
+    animation-fill-mode: both;
+}
+
+/* Click feedback animation */
+@keyframes clickPulse {
+    0% { 
+        box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+        border-color: rgba(255, 255, 255, 0.8);
+    }
+    50% { 
+        box-shadow: 0 12px 35px rgba(255, 255, 255, 0.7), 0 0 40px rgba(255, 255, 255, 0.4);
+        border-color: rgba(255, 255, 255, 1);
+    }
+    100% { 
+        box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+        border-color: rgba(255, 255, 255, 0.8);
+    }
+}
+
+.click-pulse {
+    animation: clickPulse 0.5s ease-in-out;
+    animation-fill-mode: both;
+}
+
+/* UPGRADES BOX (RIGHT SIDE) */
+.upgrades-box {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    border-left: 12px solid rgba(255, 255, 255, 0.7);
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    position: relative;
+    min-height: 500px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+/* Cloudy white glow effect for upgrades box */
+.upgrades-box::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -18px;
+    right: -6px;
+    bottom: -6px;
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.3), 
+        rgba(255, 255, 255, 0.2),
+        rgba(255, 255, 255, 0.1));
+    border-radius: 31px;
+    z-index: -1;
+    filter: blur(12px);
+    opacity: 0.8;
+}
+
+/* Left border accent */
+.upgrades-box::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: -9px;
+    width: 10px;
+    height: 70%;
+    background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.9),
+        rgba(255, 255, 255, 0.7),
+        rgba(255, 255, 255, 0.5),
+        rgba(255, 255, 255, 0.7),
+        rgba(255, 255, 255, 0.9));
+    border-radius: 5px;
+    filter: blur(1px);
+}
+
+/* Custom scrollbar */
+.upgrades-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.upgrades-box::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.upgrades-box::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 4px;
+}
+
+.upgrades-box::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* UPGRADE ITEMS */
+.upgrade-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.6);
+    padding-bottom: 1rem;
+}
+
+.upgrade-item {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+    border-radius: 15px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    opacity: 1;
+    display: block;
+}
+
+.upgrade-item.hidden {
+    display: none !important;
+}
+
+.upgrade-item.disabled {
+    opacity: 0.6;
+    background: linear-gradient(135deg, rgba(200,200,200,0.8), rgba(180,180,180,0.6));
+}
+
+.upgrade-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.upgrade-image {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240,240,240,0.8));
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.upgrade-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upgrade-info {
+    flex-grow: 1;
+}
+
+.upgrade-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    color: #222;
+}
+
+.upgrade-description {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 0.8rem;
+    line-height: 1.3;
+}
+
+.upgrade-stats {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.85rem;
+}
+
+.stat {
+    font-weight: 600;
+    color: #444;
+}
+
+.upgrade-btn {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 10px;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    background: linear-gradient(135deg, #4dabf7, #339af0);
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(51, 154, 240, 0.3);
+}
+
+.upgrade-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(51, 154, 240, 0.4);
+    background: linear-gradient(135deg, #339af0, #228be6);
+}
+
+.upgrade-btn:disabled {
+    background: linear-gradient(135deg, #adb5bd, #868e96);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Purchase glow animation */
+@keyframes purchaseGlow {
+    0% { 
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1),
+                    0 0 0 0 rgba(76, 175, 80, 0.3);
+    }
+    50% { 
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1),
+                    0 0 0 15px rgba(76, 175, 80, 0);
+    }
+    100% { 
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1),
+                    0 0 0 0 rgba(76, 175, 80, 0);
+    }
+}
+
+.purchase-glow {
+    animation: purchaseGlow 0.8s ease-in-out;
+    animation-fill-mode: both;
+}
+
+/* Upgrade reveal animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.upgrade-reveal {
+    animation: fadeInUp 0.5s ease;
+    animation-fill-mode: both;
+}
+
+/* Fade in animation */
+@keyframes unlockReveal {
+    0% { 
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+        filter: blur(5px);
+    }
+    50% { 
+        opacity: 0.7;
+        transform: translateY(-10px) scale(1.05);
+        filter: blur(0);
+    }
+    100% { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+.unlock-reveal {
+    animation: unlockReveal 0.6s ease-in-out;
+    animation-fill-mode: both;
+}
+
+/* Hidden class */
+.hidden {
+    display: none !important;
+}
+
+/* RESPONSIVE ADJUSTMENTS */
+@media (max-width: 992px) {
+    .kirk-box, .upgrades-box {
+        padding: 1.5rem;
+    }
+    
+    .clickable-image {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .counter {
+        font-size: 2.8rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .kirk-box, .upgrades-box {
+        min-height: 400px;
+    }
+    
+    .clickable-image {
+        width: 220px;
+        height: 220px;
+    }
+    
+    .counter {
+        font-size: 2.5rem !important;
+    }
+    
+    .upgrade-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .upgrade-stats {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .kirk-box, .upgrades-box {
+        padding: 1rem;
+        border-radius: 20px;
+    }
+    
+    .clickable-image {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .counter {
+        font-size: 2.2rem !important;
+    }
+    
+    .upgrade-btn {
+        padding: 0.6rem;
+        font-size: 1rem;
+    }
+}
