@@ -1,4 +1,4 @@
-/* style.css - FIXED VERSION */
+/* style.css - GitHub Pages Compatible */
 
 /* Reset and base styles */
 * {
@@ -8,7 +8,7 @@
 }
 
 body {
-    background-image: url('/static/background.jpg');
+    background-image: url('background.jpg'); /* CHANGED: was '/static/background.jpg' */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
