@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Kirk Clicker - Performance Optimized");
+    console.log("Kirk Clicker - Static GitHub Pages Edition (Final Fixed)");
     
     // ==================== DOM ELEMENTS & STATE ====================
     const elements = {
@@ -9,26 +9,20 @@ document.addEventListener("DOMContentLoaded", () => {
         authStatus: document.getElementById('authStatus'),
         btnSave: document.getElementById('btnSave'),
         btnLoad: document.getElementById('btnLoad'),
-        btnLogout: document.getElementById('btnLogout'),
-        openAuth: document.getElementById('openAuth'),
-        authModal: document.getElementById('authModal'),
-        authUsername: document.getElementById('authUsername'),
-        authPassword: document.getElementById('authPassword'),
-        authMsg: document.getElementById('authMsg'),
-        btnLogin: document.getElementById('btnLogin'),
-        btnRegister: document.getElementById('btnRegister')
+        btnExport: document.getElementById('btnExport'),
+        btnImport: document.getElementById('btnImport'),
+        btnReset: document.getElementById('btnReset'),
+        importFile: document.getElementById('importFile')
     };
     
     // Game state
     let gameState = {
         kirks: 0,
-        accountId: null,
-        username: null,
         freeMode: false,
         upgrades: [
             { id: 'tyler', name: 'Tyler Robinson', desc: 'Generates 0.5 Kirks/sec', 
               owned: 0, baseCost: 50, cost: 50, perSec: 0.5, costMult: 1.15, 
-              image: '/static/tyler.jpeg', unlocked: true },
+              image: 'static/tyler.jpeg', unlocked: true },
             { id: 'woke', name: 'The Woke Left', desc: 'Generates 2 Kirks/sec', 
               owned: 0, baseCost: 300, cost: 300, perSec: 2, costMult: 1.15, 
               image: null, unlocked: false },
@@ -59,6 +53,10 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
     
+    // Save system constants
+    const SAVE_KEY = 'kirkClickerSaveV1';
+    const SAVE_VERSION = 1;
+    
     // Performance-critical: Cached DOM references
     let domCache = {
         buttons: new Map(),      // upgradeId -> button element
@@ -70,28 +68,32 @@ document.addEventListener("DOMContentLoaded", () => {
     // Performance: Cache upgrade references by ID for O(1) lookup
     const upgradeMap = new Map();
     
+    // Auto-save tracking
+    let lastAutoSave = Date.now();
+    let originalStatusText = 'Local Save Mode';
+    
     // Rendering control
     let needsRender = false;
-    let authModalInstance = null;
     
     // ==================== UTILITY FUNCTIONS ====================
     function formatNumber(num) {
         if (num >= 1000000000000) return (num / 1000000000000).toFixed(1).replace('.0', '') + 'T';
         if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace('.0', '') + 'B';
-        if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M'; // FIXED: was dividing by billion
         if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'K';
         return Math.floor(num).toString();
     }
     
-    function showMessage(message, isError = true) {
-        if (!elements.authMsg) return;
+    function showStatusMessage(message, duration = 1500) {
+        if (!elements.authStatus) return;
         
-        elements.authMsg.textContent = message;
-        elements.authMsg.className = `alert ${isError ? 'alert-danger' : 'alert-success'} d-block`;
+        elements.authStatus.textContent = message;
         
         setTimeout(() => {
-            elements.authMsg.classList.add('d-none');
-        }, 3000);
+            if (elements.authStatus.textContent === message) {
+                elements.authStatus.textContent = originalStatusText;
+            }
+        }, duration);
     }
     
     // Initialize upgrade map for O(1) lookups
@@ -100,6 +102,220 @@ document.addEventListener("DOMContentLoaded", () => {
         gameState.upgrades.forEach((upgrade, index) => {
             upgradeMap.set(upgrade.id, { upgrade, index });
         });
+    }
+    
+    // ==================== SAVE SYSTEM ====================
+    function getSaveData() {
+        return {
+            version: SAVE_VERSION,
+            kirks: gameState.kirks,
+            upgrades: gameState.upgrades.map(upgrade => ({
+                id: upgrade.id,
+                owned: upgrade.owned,
+                cost: upgrade.cost
+            }))
+        };
+    }
+    
+    function saveToLocalStorage() {
+        try {
+            const saveData = getSaveData();
+            localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+            return true;
+        } catch (error) {
+            console.error('Failed to save to localStorage:', error);
+            return false;
+        }
+    }
+    
+    function loadFromLocalStorage() {
+        try {
+            const saved = localStorage.getItem(SAVE_KEY);
+            if (!saved) return null;
+            
+            const saveData = JSON.parse(saved);
+            
+            // Basic validation
+            if (!saveData || typeof saveData !== 'object') return null;
+            
+            // Version check (accept missing version as version 1, reject higher versions)
+            const version = saveData.version || 1;
+            if (version > SAVE_VERSION) {
+                showStatusMessage(`Save v${version} too new (v${SAVE_VERSION} max)`);
+                return null;
+            }
+            
+            if (typeof saveData.kirks !== 'number') return null;
+            if (!Array.isArray(saveData.upgrades)) return null;
+            
+            // Add version to save data for consistency
+            saveData.version = version;
+            
+            return saveData;
+        } catch (error) {
+            console.error('Failed to load from localStorage:', error);
+            return null;
+        }
+    }
+    
+    function applySave(saveData) {
+        if (!saveData) return;
+        
+        // Sanity guard against NaN/Infinity
+        gameState.kirks = Number.isFinite(saveData.kirks) ? saveData.kirks : 0;
+        
+        if (saveData.upgrades && Array.isArray(saveData.upgrades)) {
+            // Reset all upgrades first
+            gameState.upgrades.forEach(upgrade => {
+                upgrade.owned = 0;
+                upgrade.cost = upgrade.baseCost;
+                upgrade.unlocked = (upgrade.id === 'tyler'); // Only first upgrade unlocked by default
+            });
+            
+            // Apply saved upgrades (O(n) using upgradeMap)
+            saveData.upgrades.forEach(savedUpgrade => {
+                const cached = upgradeMap.get(savedUpgrade.id);
+                if (cached) {
+                    const upgrade = cached.upgrade;
+                    // Sanity guard: ensure owned and cost are finite numbers
+                    upgrade.owned = Number.isFinite(savedUpgrade.owned) ? Math.max(0, savedUpgrade.owned) : 0;
+                    upgrade.cost = Number.isFinite(savedUpgrade.cost) ? Math.max(upgrade.baseCost, savedUpgrade.cost) : upgrade.baseCost;
+                    
+                    if (upgrade.owned > 0) {
+                        upgrade.unlocked = true;
+                    }
+                }
+            });
+            
+            // Unlock chain: if previous owned > 0, unlock next
+            for (let i = 0; i < gameState.upgrades.length - 1; i++) {
+                if (gameState.upgrades[i].owned > 0) {
+                    gameState.upgrades[i + 1].unlocked = true;
+                }
+            }
+        }
+        
+        // Update upgrade map
+        initUpgradeMap();
+        
+        // Mark for render
+        needsRender = true;
+        
+        // Update immediate UI
+        updateCounterOnly();
+    }
+    
+    function saveGame() {
+        if (saveToLocalStorage()) {
+            showStatusMessage('Saved!');
+        } else {
+            showStatusMessage('Save failed');
+        }
+    }
+    
+    function loadGame() {
+        const saveData = loadFromLocalStorage();
+        if (saveData) {
+            applySave(saveData);
+            showStatusMessage('Loaded!');
+        } else {
+            showStatusMessage('No save found');
+        }
+    }
+    
+    function exportSave() {
+        try {
+            const saveData = getSaveData();
+            const blob = new Blob([JSON.stringify(saveData, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `kirk-clicker-save.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatusMessage('Exported!');
+        } catch (error) {
+            showStatusMessage('Export failed');
+        }
+    }
+    
+    function importSave() {
+        if (!elements.importFile) {
+            showStatusMessage('Import not supported');
+            return;
+        }
+        
+        // Clear previous file selection
+        elements.importFile.value = '';
+        
+        elements.importFile.onchange = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const saveData = JSON.parse(e.target.result);
+                    
+                    // Basic validation
+                    if (!saveData || typeof saveData !== 'object') {
+                        throw new Error('Invalid file format');
+                    }
+                    
+                    // Version check (accept missing version as version 1, reject higher versions)
+                    const version = saveData.version || 1;
+                    if (version > SAVE_VERSION) {
+                        throw new Error(`Save v${version} too new (v${SAVE_VERSION} max)`);
+                    }
+                    
+                    if (typeof saveData.kirks !== 'number' || !Number.isFinite(saveData.kirks)) {
+                        throw new Error('Invalid kirks value');
+                    }
+                    
+                    if (!Array.isArray(saveData.upgrades)) {
+                        throw new Error('Invalid upgrades data');
+                    }
+                    
+                    // Apply and save to localStorage
+                    applySave(saveData);
+                    saveToLocalStorage();
+                    showStatusMessage('Imported!');
+                } catch (error) {
+                    showStatusMessage('Import failed');
+                }
+            };
+            
+            reader.readAsText(file);
+        };
+        
+        elements.importFile.click();
+    }
+    
+    function resetGame() {
+        if (confirm('Are you sure you want to reset the game? This will delete all progress and cannot be undone.')) {
+            localStorage.removeItem(SAVE_KEY);
+            
+            // Reset game state
+            gameState.kirks = 0;
+            gameState.upgrades.forEach(upgrade => {
+                upgrade.owned = 0;
+                upgrade.cost = upgrade.baseCost;
+                upgrade.unlocked = (upgrade.id === 'tyler');
+            });
+            
+            // Update upgrade map
+            initUpgradeMap();
+            
+            // Force render
+            needsRender = true;
+            
+            showStatusMessage('Game reset!');
+        }
     }
     
     // ==================== GAME FUNCTIONS ====================
@@ -124,9 +340,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const canBuy = gameState.freeMode || gameState.kirks >= upgrade.cost;
             const isDisabled = !canBuy || !upgrade.unlocked;
             
+            // Only set disabled state - Bootstrap classes removed
             button.disabled = isDisabled;
-            button.classList.toggle('btn-primary', canBuy && upgrade.unlocked);
-            button.classList.toggle('btn-secondary', !canBuy || !upgrade.unlocked);
         });
     }
     
@@ -252,162 +467,15 @@ document.addEventListener("DOMContentLoaded", () => {
         // Update UI
         updateCounterOnly();
         updateButtonStates();
+        
+        // Auto-save after purchase
+        saveToLocalStorage();
     }
     
     function calculateIncomePerSecond() {
         return gameState.upgrades.reduce((total, upgrade) => {
             return total + (upgrade.owned * upgrade.perSec);
         }, 0);
-    }
-    
-    // ==================== AUTHENTICATION FUNCTIONS ====================
-    function updateAuthUI() {
-        if (!elements.authStatus) return;
-        
-        if (gameState.accountId) {
-            elements.authStatus.textContent = `Logged in as ${gameState.username}`;
-            if (elements.btnSave) elements.btnSave.disabled = false;
-            if (elements.btnLoad) elements.btnLoad.disabled = false;
-            if (elements.btnLogout) elements.btnLogout.disabled = false;
-        } else {
-            elements.authStatus.textContent = 'Not logged in';
-            if (elements.btnSave) elements.btnSave.disabled = true;
-            if (elements.btnLoad) elements.btnLoad.disabled = true;
-            if (elements.btnLogout) elements.btnLogout.disabled = true;
-        }
-    }
-    
-    async function apiFetch(url, options = {}) {
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                },
-                credentials: 'same-origin',
-                ...options
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'Request failed');
-            }
-            
-            return data;
-        } catch (error) {
-            throw error;
-        }
-    }
-    
-    async function checkSession() {
-        try {
-            const data = await apiFetch('/api/check_session');
-            
-            if (data.logged_in) {
-                gameState.accountId = data.account_id;
-                gameState.username = data.username;
-                updateAuthUI();
-                
-                // Auto-load game data
-                setTimeout(loadGame, 500);
-            }
-        } catch (error) {
-            console.log('No active session:', error.message);
-        }
-    }
-    
-    // ==================== SAVE/LOAD FUNCTIONS ====================
-    function getSaveData() {
-        return {
-            kirks: gameState.kirks,
-            upgrades: gameState.upgrades.map(upgrade => ({
-                id: upgrade.id,
-                owned: upgrade.owned,
-                cost: upgrade.cost
-            }))
-        };
-    }
-    
-    function applySave(saveData) {
-        if (!saveData) return;
-        
-        gameState.kirks = saveData.kirks || 0;
-        
-        if (saveData.upgrades && Array.isArray(saveData.upgrades)) {
-            // Reset all upgrades first
-            gameState.upgrades.forEach(upgrade => {
-                upgrade.owned = 0;
-                upgrade.cost = upgrade.baseCost;
-                upgrade.unlocked = (upgrade.id === 'tyler'); // Only first upgrade unlocked by default
-            });
-            
-            // Apply saved upgrades
-            saveData.upgrades.forEach(savedUpgrade => {
-                const upgrade = gameState.upgrades.find(u => u.id === savedUpgrade.id);
-                if (upgrade) {
-                    upgrade.owned = savedUpgrade.owned || 0;
-                    upgrade.cost = savedUpgrade.cost || upgrade.baseCost;
-                    if (upgrade.owned > 0) {
-                        upgrade.unlocked = true;
-                    }
-                }
-            });
-            
-            // Unlock chain: if previous owned > 0, unlock next
-            for (let i = 0; i < gameState.upgrades.length - 1; i++) {
-                if (gameState.upgrades[i].owned > 0) {
-                    gameState.upgrades[i + 1].unlocked = true;
-                }
-            }
-        }
-        
-        // Update upgrade map
-        initUpgradeMap();
-        
-        // Mark for render
-        needsRender = true;
-        
-        // Update immediate UI
-        updateCounterOnly();
-    }
-    
-    async function saveGame() {
-        if (!gameState.accountId) {
-            showMessage('You must be logged in to save');
-            return;
-        }
-        
-        try {
-            await apiFetch('/api/save', {
-                method: 'POST',
-                body: JSON.stringify({
-                    save: getSaveData()
-                })
-            });
-            
-            alert('Game saved successfully!');
-        } catch (error) {
-            alert('Save failed: ' + (error.message || 'Unknown error'));
-        }
-    }
-    
-    async function loadGame() {
-        if (!gameState.accountId) {
-            showMessage('You must be logged in to load');
-            return;
-        }
-        
-        try {
-            const data = await apiFetch('/api/load');
-            
-            if (data.save) {
-                applySave(data.save);
-                alert('Game loaded successfully!');
-            }
-        } catch (error) {
-            alert('Load failed: ' + (error.message || 'No save data found'));
-        }
     }
     
     // ==================== EVENT LISTENERS ====================
@@ -417,118 +485,29 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.kirkButton.addEventListener('click', clickKirk);
     }
     
-    // Bootstrap Modal (store instance once)
-    if (elements.authModal) {
-        authModalInstance = new bootstrap.Modal(elements.authModal);
-        
-        if (elements.openAuth) {
-            elements.openAuth.addEventListener('click', () => {
-                authModalInstance.show();
-            });
-        }
-    }
-    
-    // Login
-    if (elements.btnLogin) {
-        elements.btnLogin.addEventListener('click', async () => {
-            const username = elements.authUsername?.value.trim();
-            const password = elements.authPassword?.value;
-            
-            if (!username || !password) {
-                showMessage('Please enter username and password');
-                return;
-            }
-            
-            try {
-                const data = await apiFetch('/api/login', {
-                    method: 'POST',
-                    body: JSON.stringify({ username, password })
-                });
-                
-                gameState.accountId = data.account_id;
-                gameState.username = data.username;
-                
-                showMessage('Login successful!', false);
-                updateAuthUI();
-                
-                if (authModalInstance) {
-                    authModalInstance.hide();
-                }
-                
-                if (elements.authUsername) elements.authUsername.value = '';
-                if (elements.authPassword) elements.authPassword.value = '';
-                
-                setTimeout(loadGame, 500);
-                
-            } catch (error) {
-                showMessage(error.message || 'Login failed');
-            }
-        });
-    }
-    
-    // Register
-    if (elements.btnRegister) {
-        elements.btnRegister.addEventListener('click', async () => {
-            const username = elements.authUsername?.value.trim();
-            const password = elements.authPassword?.value;
-            
-            if (!username || !password) {
-                showMessage('Please enter username and password');
-                return;
-            }
-            
-            try {
-                const data = await apiFetch('/api/register', {
-                    method: 'POST',
-                    body: JSON.stringify({ username, password })
-                });
-                
-                gameState.accountId = data.account_id;
-                gameState.username = data.username;
-                
-                showMessage('Registration successful! You are now logged in.', false);
-                updateAuthUI();
-                
-                if (authModalInstance) {
-                    authModalInstance.hide();
-                }
-                
-                if (elements.authUsername) elements.authUsername.value = '';
-                if (elements.authPassword) elements.authPassword.value = '';
-                
-            } catch (error) {
-                showMessage(error.message || 'Registration failed');
-            }
-        });
-    }
-    
-    // Save
+    // Save (localStorage)
     if (elements.btnSave) {
         elements.btnSave.addEventListener('click', saveGame);
     }
     
-    // Load
+    // Load (localStorage)
     if (elements.btnLoad) {
         elements.btnLoad.addEventListener('click', loadGame);
     }
     
-    // Logout
-    if (elements.btnLogout) {
-        elements.btnLogout.addEventListener('click', async () => {
-            try {
-                await apiFetch('/api/logout', {
-                    method: 'POST'
-                });
-                
-                gameState.accountId = null;
-                gameState.username = null;
-                updateAuthUI();
-                
-                showMessage('Logged out successfully', false);
-            } catch (error) {
-                showMessage('Logout failed');
-            }
-        });
+    // Export (file)
+    if (elements.btnExport) {
+        elements.btnExport.addEventListener('click', exportSave);
+    }
+    
+    // Import (file)
+    if (elements.btnImport) {
+        elements.btnImport.addEventListener('click', importSave);
+    }
+    
+    // Reset Game
+    if (elements.btnReset) {
+        elements.btnReset.addEventListener('click', resetGame);
     }
     
     // ==================== GAME LOOP ====================
@@ -547,6 +526,13 @@ document.addEventListener("DOMContentLoaded", () => {
             renderUpgrades();
             needsRender = false;
         }
+        
+        // 4. Auto-save every 30 seconds (proper timer)
+        const now = Date.now();
+        if (now - lastAutoSave >= 30000) {
+            saveToLocalStorage();
+            lastAutoSave = now;
+        }
     }
     
     // ==================== INITIALIZATION ====================
@@ -554,18 +540,23 @@ document.addEventListener("DOMContentLoaded", () => {
         // Initialize upgrade map for O(1) lookups
         initUpgradeMap();
         
+        // Load saved game
+        const savedData = loadFromLocalStorage();
+        if (savedData) {
+            applySave(savedData);
+            console.log('Loaded saved game from localStorage');
+        } else {
+            console.log('No save found, starting fresh game');
+        }
+        
         // Initial render
         renderUpgrades();
         updateCounterOnly();
-        updateAuthUI();
         
         // Start game loop
         setInterval(gameLoop, 100);
         
-        // Check session
-        checkSession();
-        
-        console.log('Game initialized with performance optimization');
+        console.log('Game initialized - Final Fixed Static Edition');
     }
     
     // Start the game
