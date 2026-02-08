@@ -25,31 +25,31 @@ document.addEventListener("DOMContentLoaded", () => {
               image: 'static/tyler.jpeg', unlocked: true },
             { id: 'woke', name: 'The Woke Left', desc: 'Generates 2 Kirks/sec', 
               owned: 0, baseCost: 300, cost: 300, perSec: 2, costMult: 1.15, 
-              image: null, unlocked: false },
-            { id: 'ac3', name: 'Auto-Clicker 3', desc: 'Generates 10 Kirks/sec', 
+              image: 'static/wokeleft.jpeg', unlocked: false },
+            { id: 'ac3', name: 'Erika Kirk', desc: 'Generates 10 Kirks/sec', 
               owned: 0, baseCost: 1800, cost: 1800, perSec: 10, costMult: 1.15, 
-              image: null, unlocked: false },
-            { id: 'ac4', name: 'Auto-Clicker 4', desc: 'Generates 50 Kirks/sec', 
+              image: 'static/erikakirk.jpeg', unlocked: false },
+            { id: 'ac4', name: 'Transgender OnlyFans', desc: 'Generates 50 Kirks/sec', 
               owned: 0, baseCost: 10800, cost: 10800, perSec: 50, costMult: 1.15, 
-              image: null, unlocked: false },
-            { id: 'ac5', name: 'Auto-Clicker 5', desc: 'Generates 200 Kirks/sec', 
+              image: 'static/transfans.jpeg', unlocked: false },
+            { id: 'ac5', name: 'Fetus (in Latin)', desc: 'Generates 200 Kirks/sec', 
               owned: 0, baseCost: 64800, cost: 64800, perSec: 200, costMult: 1.15, 
-              image: null, unlocked: false },
-            { id: 'ac6', name: 'Auto-Clicker 6', desc: 'Generates 1000 Kirks/sec', 
+              image: 'static/fetus.jpeg', unlocked: false },
+            { id: 'ac6', name: 'AIPAC', desc: 'Generates 1000 Kirks/sec', 
               owned: 0, baseCost: 388800, cost: 388800, perSec: 1000, costMult: 1.15, 
-              image: null, unlocked: false },
-            { id: 'ac7', name: 'Auto-Clicker 7', desc: 'Generates 5000 Kirks/sec', 
+              image: 'static/aipac.jpeg', unlocked: false },
+            { id: 'ac7', name: 'JD Vance', desc: 'Generates 5000 Kirks/sec', 
               owned: 0, baseCost: 2332800, cost: 2332800, perSec: 5000, costMult: 1.15, 
-              image: null, unlocked: false },
-            { id: 'ac8', name: 'Auto-Clicker 8', desc: 'Generates 25000 Kirks/sec', 
+              image: 'static/vance.jpeg', unlocked: false },
+            { id: 'ac8', name: 'Donald Trump', desc: 'Generates 25000 Kirks/sec', 
               owned: 0, baseCost: 13996800, cost: 13996800, perSec: 25000, costMult: 1.15, 
-              image: null, unlocked: false },
-            { id: 'ac9', name: 'Auto-Clicker 9', desc: 'Generates 100000 Kirks/sec', 
+              image: 'static/trump.jpeg', unlocked: false },
+            { id: 'ac9', name: 'Israel', desc: 'Generates 100000 Kirks/sec', 
               owned: 0, baseCost: 83980800, cost: 83980800, perSec: 100000, costMult: 1.15, 
-              image: null, unlocked: false },
-            { id: 'ac10', name: 'Auto-Clicker 10', desc: 'Generates 500000 Kirks/sec', 
+              image: 'static/israel.jpeg', unlocked: false },
+            { id: 'ac10', name: 'Yakub', desc: 'Generates 500000 Kirks/sec', 
               owned: 0, baseCost: 503884800, cost: 503884800, perSec: 500000, costMult: 1.15, 
-              image: null, unlocked: false }
+              image: 'static/yakub.jpeg', unlocked: false }
         ]
     };
     
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function formatNumber(num) {
         if (num >= 1000000000000) return (num / 1000000000000).toFixed(1).replace('.0', '') + 'T';
         if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace('.0', '') + 'B';
-        if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M'; // FIXED: was dividing by billion
+        if (num >= 1000000) return (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'K';
         return Math.floor(num).toString();
     }
