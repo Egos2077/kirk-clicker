@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Kirk Clicker - Static GitHub Pages Edition (Final Fixed)");
+    console.log("Kirk Clicker - Loaded");
     
     // ==================== DOM ELEMENTS & STATE ====================
     const elements = {
@@ -59,10 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Performance-critical: Cached DOM references
     let domCache = {
-        buttons: new Map(),      // upgradeId -> button element
-        costSpans: new Map(),    // upgradeId -> cost span element
-        countSpans: new Map(),   // upgradeId -> count span element
-        prodSpans: new Map()     // upgradeId -> production span element
+        buttons: new Map(),
+        costSpans: new Map(),
+        countSpans: new Map(),
+        prodSpans: new Map()
     };
     
     // Performance: Cache upgrade references by ID for O(1) lookup
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Auto-save tracking
     let lastAutoSave = Date.now();
-    let originalStatusText = 'Local Save Mode';
+    let originalStatusText = 'Save System Active';
     
     // Rendering control
     let needsRender = false;
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function formatNumber(num) {
         if (num >= 1000000000000) return (num / 1000000000000).toFixed(1).replace('.0', '') + 'T';
         if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace('.0', '') + 'B';
-        if (num >= 1000000) return (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'K';
         return Math.floor(num).toString();
     }
@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
             return true;
         } catch (error) {
-            console.error('Failed to save to localStorage:', error);
+            console.error('Failed to save:', error);
             return false;
         }
     }
@@ -135,10 +135,8 @@ document.addEventListener("DOMContentLoaded", () => {
             
             const saveData = JSON.parse(saved);
             
-            // Basic validation
             if (!saveData || typeof saveData !== 'object') return null;
             
-            // Version check (accept missing version as version 1, reject higher versions)
             const version = saveData.version || 1;
             if (version > SAVE_VERSION) {
                 showStatusMessage(`Save v${version} too new (v${SAVE_VERSION} max)`);
@@ -148,12 +146,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (typeof saveData.kirks !== 'number') return null;
             if (!Array.isArray(saveData.upgrades)) return null;
             
-            // Add version to save data for consistency
             saveData.version = version;
             
             return saveData;
         } catch (error) {
-            console.error('Failed to load from localStorage:', error);
+            console.error('Failed to load:', error);
             return null;
         }
     }
@@ -161,23 +158,19 @@ document.addEventListener("DOMContentLoaded", () => {
     function applySave(saveData) {
         if (!saveData) return;
         
-        // Sanity guard against NaN/Infinity
         gameState.kirks = Number.isFinite(saveData.kirks) ? saveData.kirks : 0;
         
         if (saveData.upgrades && Array.isArray(saveData.upgrades)) {
-            // Reset all upgrades first
             gameState.upgrades.forEach(upgrade => {
                 upgrade.owned = 0;
                 upgrade.cost = upgrade.baseCost;
-                upgrade.unlocked = (upgrade.id === 'tyler'); // Only first upgrade unlocked by default
+                upgrade.unlocked = (upgrade.id === 'tyler');
             });
             
-            // Apply saved upgrades (O(n) using upgradeMap)
             saveData.upgrades.forEach(savedUpgrade => {
                 const cached = upgradeMap.get(savedUpgrade.id);
                 if (cached) {
                     const upgrade = cached.upgrade;
-                    // Sanity guard: ensure owned and cost are finite numbers
                     upgrade.owned = Number.isFinite(savedUpgrade.owned) ? Math.max(0, savedUpgrade.owned) : 0;
                     upgrade.cost = Number.isFinite(savedUpgrade.cost) ? Math.max(upgrade.baseCost, savedUpgrade.cost) : upgrade.baseCost;
                     
@@ -187,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
             
-            // Unlock chain: if previous owned > 0, unlock next
             for (let i = 0; i < gameState.upgrades.length - 1; i++) {
                 if (gameState.upgrades[i].owned > 0) {
                     gameState.upgrades[i + 1].unlocked = true;
@@ -195,13 +187,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         
-        // Update upgrade map
         initUpgradeMap();
-        
-        // Mark for render
         needsRender = true;
-        
-        // Update immediate UI
         updateCounterOnly();
     }
     
@@ -250,7 +237,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         
-        // Clear previous file selection
         elements.importFile.value = '';
         
         elements.importFile.onchange = (event) => {
@@ -262,12 +248,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     const saveData = JSON.parse(e.target.result);
                     
-                    // Basic validation
                     if (!saveData || typeof saveData !== 'object') {
                         throw new Error('Invalid file format');
                     }
                     
-                    // Version check (accept missing version as version 1, reject higher versions)
                     const version = saveData.version || 1;
                     if (version > SAVE_VERSION) {
                         throw new Error(`Save v${version} too new (v${SAVE_VERSION} max)`);
@@ -281,7 +265,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         throw new Error('Invalid upgrades data');
                     }
                     
-                    // Apply and save to localStorage
                     applySave(saveData);
                     saveToLocalStorage();
                     showStatusMessage('Imported!');
@@ -300,7 +283,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (confirm('Are you sure you want to reset the game? This will delete all progress and cannot be undone.')) {
             localStorage.removeItem(SAVE_KEY);
             
-            // Reset game state
             gameState.kirks = 0;
             gameState.upgrades.forEach(upgrade => {
                 upgrade.owned = 0;
@@ -308,10 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 upgrade.unlocked = (upgrade.id === 'tyler');
             });
             
-            // Update upgrade map
             initUpgradeMap();
-            
-            // Force render
             needsRender = true;
             
             showStatusMessage('Game reset!');
@@ -320,19 +299,16 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // ==================== GAME FUNCTIONS ====================
     
-    // TICK-SAFE: Update counter only (called every 100ms)
     function updateCounterOnly() {
         if (elements.counter) {
             elements.counter.textContent = `${formatNumber(gameState.kirks)} Kirks`;
         }
     }
     
-    // TICK-SAFE: Update button states only (no DOM creation, O(n) not O(n²))
     function updateButtonStates() {
         domCache.buttons.forEach((button, upgradeId) => {
             if (!button) return;
             
-            // O(1) lookup using upgradeMap
             const cached = upgradeMap.get(upgradeId);
             if (!cached) return;
             
@@ -340,25 +316,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const canBuy = gameState.freeMode || gameState.kirks >= upgrade.cost;
             const isDisabled = !canBuy || !upgrade.unlocked;
             
-            // Only set disabled state - Bootstrap classes removed
             button.disabled = isDisabled;
         });
     }
     
-    // EVENT-ONLY: Full DOM rebuild (called only on init/buy/load/unlock)
     function renderUpgrades() {
         if (!elements.upgradesContainer) return;
         
-        // Clear container
         elements.upgradesContainer.innerHTML = '';
         
-        // Clear DOM cache (will rebuild)
         domCache.buttons.clear();
         domCache.costSpans.clear();
         domCache.countSpans.clear();
         domCache.prodSpans.clear();
         
-        // Render each upgrade
         gameState.upgrades.forEach((upgrade, index) => {
             const upgradeEl = document.createElement('div');
             upgradeEl.className = `upgrade-item ${upgrade.unlocked ? '' : 'hidden'}`;
@@ -390,7 +361,6 @@ document.addEventListener("DOMContentLoaded", () => {
             
             elements.upgradesContainer.appendChild(upgradeEl);
             
-            // Cache references
             const button = upgradeEl.querySelector(`button[data-upgrade-id="${upgrade.id}"]`);
             const costSpan = upgradeEl.querySelector(`.upgrade-cost[data-upgrade-id="${upgrade.id}"]`);
             const countSpan = upgradeEl.querySelector(`.upgrade-count[data-upgrade-id="${upgrade.id}"]`);
@@ -402,10 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (prodSpan) domCache.prodSpans.set(upgrade.id, prodSpan);
         });
         
-        // Re-attach event listeners to new buttons
         attachUpgradeEventListeners();
-        
-        // Update button states immediately after render
         updateButtonStates();
     }
     
@@ -435,19 +402,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!upgrade.unlocked) return;
         if (!gameState.freeMode && gameState.kirks < upgrade.cost) return;
         
-        // Deduct cost
         if (!gameState.freeMode) {
             gameState.kirks -= upgrade.cost;
         }
         
-        // Update upgrade
         upgrade.owned += 1;
         upgrade.cost = Math.floor(upgrade.cost * upgrade.costMult);
         
-        // Check if next upgrade will unlock (before DOM updates)
         const willUnlock = (upgrade.owned === 1 && index < gameState.upgrades.length - 1);
         
-        // Only update DOM if NOT doing a full render soon
         if (!willUnlock) {
             const countSpan = domCache.countSpans.get(upgrade.id);
             const costSpan = domCache.costSpans.get(upgrade.id);
@@ -458,17 +421,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (prodSpan) prodSpan.textContent = formatNumber(upgrade.owned * upgrade.perSec);
         }
         
-        // Unlock next upgrade if first purchase
         if (willUnlock) {
             gameState.upgrades[index + 1].unlocked = true;
-            needsRender = true; // Will trigger full render on next tick
+            needsRender = true;
         }
         
-        // Update UI
         updateCounterOnly();
         updateButtonStates();
         
-        // Auto-save after purchase
         saveToLocalStorage();
     }
     
@@ -480,54 +440,44 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // ==================== EVENT LISTENERS ====================
     
-    // Click Kirk
     if (elements.kirkButton) {
         elements.kirkButton.addEventListener('click', clickKirk);
     }
     
-    // Save (localStorage)
     if (elements.btnSave) {
         elements.btnSave.addEventListener('click', saveGame);
     }
     
-    // Load (localStorage)
     if (elements.btnLoad) {
         elements.btnLoad.addEventListener('click', loadGame);
     }
     
-    // Export (file)
     if (elements.btnExport) {
         elements.btnExport.addEventListener('click', exportSave);
     }
     
-    // Import (file)
     if (elements.btnImport) {
         elements.btnImport.addEventListener('click', importSave);
     }
     
-    // Reset Game
     if (elements.btnReset) {
         elements.btnReset.addEventListener('click', resetGame);
     }
     
     // ==================== GAME LOOP ====================
     function gameLoop() {
-        // 1. Update numbers only
         const incomePerSecond = calculateIncomePerSecond();
         const incomePerTick = incomePerSecond / 10;
         gameState.kirks += incomePerTick;
         
-        // 2. Tick-safe UI updates
         updateCounterOnly();
         updateButtonStates();
         
-        // 3. Check if render needed (from buy/load/unlock events)
         if (needsRender) {
             renderUpgrades();
             needsRender = false;
         }
         
-        // 4. Auto-save every 30 seconds (proper timer)
         const now = Date.now();
         if (now - lastAutoSave >= 30000) {
             saveToLocalStorage();
@@ -537,28 +487,24 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // ==================== INITIALIZATION ====================
     function init() {
-        // Initialize upgrade map for O(1) lookups
         initUpgradeMap();
         
-        // Load saved game
         const savedData = loadFromLocalStorage();
         if (savedData) {
             applySave(savedData);
-            console.log('Loaded saved game from localStorage');
+            console.log('Loaded saved game');
         } else {
-            console.log('No save found, starting fresh game');
+            console.log('Starting fresh game');
         }
         
-        // Initial render
         renderUpgrades();
         updateCounterOnly();
         
-        // Start game loop
         setInterval(gameLoop, 100);
         
-        console.log('Game initialized - Final Fixed Static Edition');
+        console.log('Kirk Clicker initialized');
+        console.log('Images loaded:', gameState.upgrades.map(u => u.image));
     }
     
-    // Start the game
     init();
 });

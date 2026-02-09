@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirk Clicker - Static Edition</title>
-    <!-- Custom CSS only - no Bootstrap for school network compatibility -->
+    <title>Kirk Clicker</title>
     <link rel="stylesheet" href="static/style.css">
+    <link rel="icon" href="static/favicon.ico" type="image/x-icon">
     <style>
-        /* Minimal navbar styles to replace Bootstrap */
+        /* Minimal clean navbar */
         .navbar {
             position: fixed;
             top: 0;
@@ -20,6 +20,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            font-family: Arial, sans-serif;
         }
         
         .navbar-brand {
@@ -39,9 +40,9 @@
             border-radius: 0.25rem;
             font-size: 0.875rem;
             cursor: pointer;
-            text-decoration: none;
             background-color: transparent;
             color: white;
+            font-family: Arial, sans-serif;
         }
         
         .btn-outline-light {
@@ -73,7 +74,8 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 1rem;
-            padding-top: 80px; /* Space for fixed navbar */
+            padding-top: 80px;
+            font-family: Arial, sans-serif;
         }
         
         .row {
@@ -123,23 +125,14 @@
         .me-3 {
             margin-right: 1rem;
         }
-        
-        .d-flex {
-            display: flex;
-        }
-        
-        .align-items-center {
-            align-items: center;
-        }
     </style>
-    <link rel="icon" href="static/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="navbar-brand">Kirk Clicker (Local Edition)</div>
+        <div class="navbar-brand">Kirk Clicker</div>
         <div class="navbar-buttons">
-            <span id="authStatus" class="text-white me-3">Local Save Mode</span>
+            <span id="authStatus" class="text-white me-3">Save System Active</span>
             <button id="btnSave" class="btn btn-outline-light me-2">Save</button>
             <button id="btnLoad" class="btn btn-outline-light me-2">Load</button>
             <button id="btnExport" class="btn btn-outline-light me-2">Export</button>
