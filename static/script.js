@@ -18,6 +18,13 @@ document.addEventListener("DOMContentLoaded", () => {
         gunshotSound: document.getElementById('gunshotSound')
     };
     
+    // Debug log to check if elements exist
+    console.log('=== DEBUG: Checking KPS elements ===');
+    console.log('kpsCounter exists:', !!elements.kpsCounter);
+    console.log('kpsValue exists:', !!elements.kpsValue);
+    console.log('counter exists:', !!elements.counter);
+    console.log('kirkButton exists:', !!elements.kirkButton);
+    
     // Game state
     let gameState = {
         kirks: 0,
@@ -129,18 +136,25 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Update KPS display
     function updateKPS() {
-        if (!elements.kpsValue) return;
+        if (!elements.kpsValue) {
+            console.error('KPS value element not found!');
+            return;
+        }
         
         const incomePerSecond = calculateIncomePerSecond();
         elements.kpsValue.textContent = formatDecimal(incomePerSecond);
         
         // Add visual feedback when KPS increases
-        if (incomePerSecond > 0) {
+        if (incomePerSecond > 0 && elements.kpsCounter) {
             elements.kpsCounter.classList.add('income-pulse');
             setTimeout(() => {
-                elements.kpsCounter.classList.remove('income-pulse');
+                if (elements.kpsCounter) {
+                    elements.kpsCounter.classList.remove('income-pulse');
+                }
             }, 300);
         }
+        
+        console.log('KPS Updated:', incomePerSecond, '->', formatDecimal(incomePerSecond));
     }
     
     // Initialize upgrade map for O(1) lookups
@@ -539,6 +553,10 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // ==================== INITIALIZATION ====================
     function init() {
+        console.log('=== INITIALIZING KIRK CLICKER ===');
+        console.log('KPS Counter found:', !!elements.kpsCounter);
+        console.log('KPS Value found:', !!elements.kpsValue);
+        
         initUpgradeMap();
         
         const savedData = loadFromLocalStorage();
@@ -553,10 +571,48 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCounterOnly();
         updateKPS(); // Initialize KPS display
         
+        // Force update KPS immediately to test
+        setTimeout(() => {
+            console.log('Testing KPS update...');
+            updateKPS();
+            
+            // Manual test: try to update the KPS display directly
+            if (elements.kpsValue) {
+                console.log('Direct KPS update test');
+                elements.kpsValue.textContent = 'TEST 5.25';
+                elements.kpsValue.style.color = 'red';
+                elements.kpsValue.style.fontSize = '24px';
+            }
+        }, 500);
+        
         setInterval(gameLoop, 100);
         
         console.log('Kirk Clicker initialized');
     }
+    
+    // Add manual test button for debugging
+    const testButton = document.createElement('button');
+    testButton.textContent = 'TEST KPS';
+    testButton.style.position = 'fixed';
+    testButton.style.bottom = '10px';
+    testButton.style.right = '10px';
+    testButton.style.zIndex = '9999';
+    testButton.style.padding = '10px';
+    testButton.style.background = 'red';
+    testButton.style.color = 'white';
+    testButton.addEventListener('click', () => {
+        console.log('=== MANUAL KPS TEST ===');
+        console.log('elements.kpsValue:', elements.kpsValue);
+        console.log('elements.kpsCounter:', elements.kpsCounter);
+        console.log('KPS calculated:', calculateIncomePerSecond());
+        
+        if (elements.kpsValue) {
+            elements.kpsValue.textContent = 'TEST ' + calculateIncomePerSecond().toFixed(2);
+            elements.kpsValue.style.color = 'red';
+            elements.kpsValue.style.fontSize = '24px';
+        }
+    });
+    document.body.appendChild(testButton);
     
     init();
 });
