@@ -12,7 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
         btnExport: document.getElementById('btnExport'),
         btnImport: document.getElementById('btnImport'),
         btnReset: document.getElementById('btnReset'),
-        importFile: document.getElementById('importFile')
+        importFile: document.getElementById('importFile'),
+        gunshotSound: document.getElementById('gunshotSound')
     };
     
     // Game state
@@ -94,6 +95,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 elements.authStatus.textContent = originalStatusText;
             }
         }, duration);
+    }
+    
+    // Play gunshot sound for manual clicks
+    function playGunshot() {
+        if (!elements.gunshotSound) return;
+        
+        try {
+            // Reset sound to beginning in case it's still playing
+            elements.gunshotSound.currentTime = 0;
+            
+            // Play the sound
+            const playPromise = elements.gunshotSound.play();
+            
+            // Handle autoplay restrictions
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log('Audio play failed:', error);
+                    // Silently fail - some browsers block autoplay
+                });
+            }
+        } catch (error) {
+            console.log('Sound error:', error);
+            // Silently fail - audio not critical to gameplay
+        }
     }
     
     // Initialize upgrade map for O(1) lookups
@@ -390,6 +415,9 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCounterOnly();
         updateButtonStates();
         
+        // Play gunshot sound for manual click
+        playGunshot();
+        
         if (elements.kirkButton) {
             elements.kirkButton.classList.add('click-pulse');
             setTimeout(() => elements.kirkButton.classList.remove('click-pulse'), 500);
@@ -503,7 +531,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setInterval(gameLoop, 100);
         
         console.log('Kirk Clicker initialized');
-        console.log('Images loaded:', gameState.upgrades.map(u => u.image));
+        console.log('Sound loaded:', elements.gunshotSound ? 'Yes' : 'No');
     }
     
     init();

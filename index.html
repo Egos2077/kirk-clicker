@@ -153,7 +153,7 @@
             <!-- Left: Kirk Clicker -->
             <div class="col-lg-6 mb-4">
                 <div class="kirk-box">
-                    <h1 id="counter" class="counter fw-bold">0 Kirks</h1>
+                    <h1 id="counter" class="counter">0 Kirks</h1>
                     <img id="kirkButton" class="clickable-image img-fluid" 
                          src="static/kirk.jpg" alt="Clickable Kirk">
                 </div>
@@ -173,6 +173,12 @@
 
     <!-- Hidden file input for iPad-safe import -->
     <input type="file" id="importFile" accept=".json" hidden>
+
+    <!-- Hidden audio element for gunshot sound -->
+    <audio id="gunshotSound" preload="auto">
+        <source src="static/gunshot.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 
     <!-- Game Scripts -->
     <script src="static/script.js"></script>
