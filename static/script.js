@@ -18,54 +18,109 @@ document.addEventListener("DOMContentLoaded", () => {
         gunshotSound: document.getElementById('gunshotSound')
     };
     
-    // Debug log to check if elements exist
-    console.log('=== DEBUG: Checking KPS elements ===');
-    console.log('kpsCounter exists:', !!elements.kpsCounter);
-    console.log('kpsValue exists:', !!elements.kpsValue);
-    console.log('counter exists:', !!elements.counter);
-    console.log('kirkButton exists:', !!elements.kirkButton);
-    
-    // Game state
+    // Game state with ALL NEW UPGRADES and images
     let gameState = {
         kirks: 0,
         freeMode: false,
         upgrades: [
+            // Phase 1: Personal Circle (1-5)
             { id: 'tyler', name: 'Tyler Robinson', desc: 'Generates 0.5 Kirks/sec', 
               owned: 0, baseCost: 50, cost: 50, perSec: 0.5, costMult: 1.15, 
               image: 'static/tyler.jpeg', unlocked: true },
-            { id: 'woke', name: 'The Woke Left', desc: 'Generates 2 Kirks/sec', 
-              owned: 0, baseCost: 300, cost: 300, perSec: 2, costMult: 1.15, 
-              image: 'static/wokeleft.jpeg', unlocked: false },
-            { id: 'ac3', name: 'Erika Kirk', desc: 'Generates 10 Kirks/sec', 
-              owned: 0, baseCost: 1800, cost: 1800, perSec: 10, costMult: 1.15, 
+            
+            { id: 'erika', name: 'Erika Kirk', desc: 'Generates 2 Kirks/sec', 
+              owned: 0, baseCost: 500, cost: 500, perSec: 2, costMult: 1.15, 
               image: 'static/erikakirk.jpeg', unlocked: false },
-            { id: 'ac4', name: 'Transgender OnlyFans', desc: 'Generates 50 Kirks/sec', 
-              owned: 0, baseCost: 10800, cost: 10800, perSec: 50, costMult: 1.15, 
-              image: 'static/transfans.jpeg', unlocked: false },
-            { id: 'ac5', name: 'Fetus (in Latin)', desc: 'Generates 200 Kirks/sec', 
-              owned: 0, baseCost: 64800, cost: 64800, perSec: 200, costMult: 1.15, 
+            
+            { id: 'debater', name: 'Master Debater', desc: 'Generates 10 Kirks/sec', 
+              owned: 0, baseCost: 7500, cost: 7500, perSec: 10, costMult: 1.15, 
+              image: 'static/master debater.jpg', unlocked: false },
+            
+            { id: 'fetus', name: 'Fetus (in Latin)', desc: 'Generates 50 Kirks/sec', 
+              owned: 0, baseCost: 112500, cost: 112500, perSec: 50, costMult: 1.15, 
               image: 'static/fetus.jpeg', unlocked: false },
-            { id: 'ac6', name: 'AIPAC', desc: 'Generates 1000 Kirks/sec', 
-              owned: 0, baseCost: 388800, cost: 388800, perSec: 1000, costMult: 1.15, 
-              image: 'static/aipac.jpeg', unlocked: false },
-            { id: 'ac7', name: 'JD Vance', desc: 'Generates 5000 Kirks/sec', 
-              owned: 0, baseCost: 2332800, cost: 2332800, perSec: 5000, costMult: 1.15, 
+            
+            // Phase 2: Online Influence (6-12)
+            { id: 'woke', name: 'The Woke Left', desc: 'Generates 200 Kirks/sec', 
+              owned: 0, baseCost: 1800000, cost: 1800000, perSec: 200, costMult: 1.15, 
+              image: 'static/wokeleft.jpeg', unlocked: false },
+            
+            { id: 'schnapp', name: 'Noah Schnapp', desc: 'Generates 1,000 Kirks/sec', 
+              owned: 0, baseCost: 32400000, cost: 32400000, perSec: 1000, costMult: 1.15, 
+              image: 'static/noah schnapp.jpg', unlocked: false },
+            
+            { id: 'owens', name: 'Candace Owens', desc: 'Generates 5,000 Kirks/sec', 
+              owned: 0, baseCost: 648000000, cost: 648000000, perSec: 5000, costMult: 1.15, 
+              image: 'static/candace owens.jpg', unlocked: false },
+            
+            { id: 'baby', name: 'Baby No Money', desc: 'Generates 25,000 Kirks/sec', 
+              owned: 0, baseCost: 15000000000, cost: 15000000000, perSec: 25000, costMult: 1.15, 
+              image: 'static/bbnos.jpg', unlocked: false },
+            
+            { id: 'shapiro', name: 'Ben Shapiro', desc: 'Generates 100,000 Kirks/sec', 
+              owned: 0, baseCost: 375000000000, cost: 375000000000, perSec: 100000, costMult: 1.15, 
+              image: 'static/ben shapiro.jpg', unlocked: false },
+            
+            { id: 'supremacists', name: 'Mexican White Supremacists', desc: 'Generates 500,000 Kirks/sec', 
+              owned: 0, baseCost: 10000000000000, cost: 10000000000000, perSec: 500000, costMult: 1.15, 
+              image: 'static/white supremacists.jpg', unlocked: false },
+            
+            { id: 'fuentes', name: 'Nick Fuentes', desc: 'Generates 2,500,000 Kirks/sec', 
+              owned: 0, baseCost: 300000000000000, cost: 300000000000000, perSec: 2500000, costMult: 1.15, 
+              image: 'static/fuentes.jpg', unlocked: false },
+            
+            { id: 'trans', name: 'Transgender OnlyFans', desc: 'Generates 10,000,000 Kirks/sec', 
+              owned: 0, baseCost: 10000000000000000, cost: 10000000000000000, perSec: 10000000, costMult: 1.15, 
+              image: 'static/transfans.jpeg', unlocked: false },
+            
+            // Phase 3: Political Power (13-15)
+            { id: 'ice', name: 'Immigration and Customs', desc: 'Generates 50,000,000 Kirks/sec', 
+              owned: 0, baseCost: 350000000000000000, cost: 350000000000000000, perSec: 50000000, costMult: 1.15, 
+              image: 'static/immigration and customs.jpg', unlocked: false },
+            
+            { id: 'vance', name: 'JD Vance', desc: 'Generates 250,000,000 Kirks/sec', 
+              owned: 0, baseCost: 14000000000000000000, cost: 14000000000000000000, perSec: 250000000, costMult: 1.15, 
               image: 'static/vance.jpeg', unlocked: false },
-            { id: 'ac8', name: 'Donald Trump', desc: 'Generates 25000 Kirks/sec', 
-              owned: 0, baseCost: 13996800, cost: 13996800, perSec: 25000, costMult: 1.15, 
+            
+            { id: 'aipac', name: 'AIPAC', desc: 'Generates 1,250,000,000 Kirks/sec', 
+              owned: 0, baseCost: 560000000000000000000, cost: 560000000000000000000, perSec: 1250000000, costMult: 1.15, 
+              image: 'static/aipac.jpeg', unlocked: false },
+            
+            // Phase 4: Institutional Power (16-18)
+            { id: 'oracle', name: 'Oracle (the company)', desc: 'Generates 6,250,000,000 Kirks/sec', 
+              owned: 0, baseCost: 25000000000000000000000, cost: 25000000000000000000000, perSec: 6250000000, costMult: 1.15, 
+              image: 'static/oracle.jpg', unlocked: false },
+            
+            { id: 'blackrock', name: 'BlackRock (the company)', desc: 'Generates 31,250,000,000 Kirks/sec', 
+              owned: 0, baseCost: 1250000000000000000000000, cost: 1250000000000000000000000, perSec: 31250000000, costMult: 1.15, 
+              image: 'static/blackrock.jpg', unlocked: false },
+            
+            { id: 'trump', name: 'Donald Trump', desc: 'Generates 156,250,000,000 Kirks/sec', 
+              owned: 0, baseCost: 75000000000000000000000000, cost: 75000000000000000000000000, perSec: 156250000000, costMult: 1.15, 
               image: 'static/trump.jpeg', unlocked: false },
-            { id: 'ac9', name: 'Israel', desc: 'Generates 100000 Kirks/sec', 
-              owned: 0, baseCost: 83980800, cost: 83980800, perSec: 100000, costMult: 1.15, 
+            
+            // Phase 5: Abstract/Mythological (19-22)
+            { id: 'grok', name: 'Grok', desc: 'Generates 781,250,000,000 Kirks/sec', 
+              owned: 0, baseCost: 5000000000000000000000000000, cost: 5000000000000000000000000000, perSec: 781250000000, costMult: 1.15, 
+              image: 'static/grok.jpg', unlocked: false },
+            
+            { id: 'jesus', name: 'Jesus Christ', desc: 'Generates 3,906,250,000,000 Kirks/sec', 
+              owned: 0, baseCost: 350000000000000000000000000000000, cost: 350000000000000000000000000000000, perSec: 3906250000000, costMult: 1.15, 
+              image: 'static/jesus.gif', unlocked: false },
+            
+            { id: 'israel', name: 'Israel', desc: 'Generates 19,531,250,000,000 Kirks/sec', 
+              owned: 0, baseCost: 28000000000000000000000000000000000, cost: 28000000000000000000000000000000000, perSec: 19531250000000, costMult: 1.15, 
               image: 'static/israel.jpeg', unlocked: false },
-            { id: 'ac10', name: 'Yakub', desc: 'Generates 500000 Kirks/sec', 
-              owned: 0, baseCost: 503884800, cost: 503884800, perSec: 500000, costMult: 1.15, 
+            
+            { id: 'yakub', name: 'Yakub', desc: 'Generates 97,656,250,000,000 Kirks/sec', 
+              owned: 0, baseCost: 2500000000000000000000000000000000000, cost: 2500000000000000000000000000000000000, perSec: 97656250000000, costMult: 1.15, 
               image: 'static/yakub.jpeg', unlocked: false }
         ]
     };
     
     // Save system constants
-    const SAVE_KEY = 'kirkClickerSaveV1';
-    const SAVE_VERSION = 1;
+    const SAVE_KEY = 'kirkClickerSaveV2'; // Changed to V2 for new upgrade structure
+    const SAVE_VERSION = 2;
     
     // Performance-critical: Cached DOM references
     let domCache = {
@@ -84,6 +139,14 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Rendering control
     let needsRender = false;
+    
+    // KPS tracking
+    let lastDisplayedKPS = null;
+    let lastKpsPulseAt = 0;
+    let lastKpsUpdateTime = 0;
+    const KPS_PULSE_INTERVAL = 250;    // Min time between pulses
+    const KPS_UPDATE_INTERVAL = 1000;  // How often to pulse during steady state
+    const KPS_EPSILON = 1e-6;
     
     // ==================== UTILITY FUNCTIONS ====================
     function formatNumber(num) {
@@ -135,26 +198,51 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     // Update KPS display
-    function updateKPS() {
-        if (!elements.kpsValue) {
-            console.error('KPS value element not found!');
-            return;
-        }
+    function updateKPS(force = false) {
+        if (!elements.kpsValue || !elements.kpsCounter) return;
         
         const incomePerSecond = calculateIncomePerSecond();
-        elements.kpsValue.textContent = formatDecimal(incomePerSecond);
+        const now = Date.now();
         
-        // Add visual feedback when KPS increases
-        if (incomePerSecond > 0 && elements.kpsCounter) {
-            elements.kpsCounter.classList.add('income-pulse');
-            setTimeout(() => {
-                if (elements.kpsCounter) {
-                    elements.kpsCounter.classList.remove('income-pulse');
-                }
-            }, 300);
+        // 1. Update display value if needed
+        const valueChanged = lastDisplayedKPS === null || 
+                            Math.abs(incomePerSecond - lastDisplayedKPS) > KPS_EPSILON;
+        
+        if (force || valueChanged) {
+            elements.kpsValue.textContent = formatDecimal(incomePerSecond);
+            lastDisplayedKPS = incomePerSecond;
         }
         
-        console.log('KPS Updated:', incomePerSecond, '->', formatDecimal(incomePerSecond));
+        // 2. Determine if we should pulse
+        let shouldPulse = false;
+        
+        if (incomePerSecond > 0) {
+            if (force) {
+                // Always pulse on forced updates (upgrades, reset, etc.)
+                shouldPulse = true;
+            } else if (valueChanged) {
+                // Pulse when value actually changes
+                shouldPulse = true;
+            } else if (now - lastKpsUpdateTime >= KPS_UPDATE_INTERVAL) {
+                // Periodic pulse during steady-state (makes it feel "alive")
+                shouldPulse = true;
+            }
+        }
+        
+        // 3. Apply pulse (with throttling)
+        if (shouldPulse && (force || now - lastKpsPulseAt >= KPS_PULSE_INTERVAL)) {
+            elements.kpsCounter.classList.add("income-pulse");
+            setTimeout(() => {
+                if (elements.kpsCounter) {
+                    elements.kpsCounter.classList.remove("income-pulse");
+                }
+            }, 300); // Match CSS animation duration
+            
+            lastKpsPulseAt = now;
+            if (!force) {
+                lastKpsUpdateTime = now; // Track when we last pulsed in steady-state
+            }
+        }
     }
     
     // Initialize upgrade map for O(1) lookups
@@ -222,12 +310,14 @@ document.addEventListener("DOMContentLoaded", () => {
         gameState.kirks = Number.isFinite(saveData.kirks) ? saveData.kirks : 0;
         
         if (saveData.upgrades && Array.isArray(saveData.upgrades)) {
+            // Reset all upgrades first
             gameState.upgrades.forEach(upgrade => {
                 upgrade.owned = 0;
                 upgrade.cost = upgrade.baseCost;
                 upgrade.unlocked = (upgrade.id === 'tyler');
             });
             
+            // Apply saved upgrades
             saveData.upgrades.forEach(savedUpgrade => {
                 const cached = upgradeMap.get(savedUpgrade.id);
                 if (cached) {
@@ -241,6 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
             
+            // Unlock next upgrades based on ownership
             for (let i = 0; i < gameState.upgrades.length - 1; i++) {
                 if (gameState.upgrades[i].owned > 0) {
                     gameState.upgrades[i + 1].unlocked = true;
@@ -251,7 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
         initUpgradeMap();
         needsRender = true;
         updateCounterOnly();
-        updateKPS(); // Update KPS when loading a save
+        updateKPS(true); // Force KPS update when loading
     }
     
     function saveGame() {
@@ -356,7 +447,7 @@ document.addEventListener("DOMContentLoaded", () => {
             needsRender = true;
             
             showStatusMessage('Game reset!');
-            updateKPS(); // Update KPS when resetting
+            updateKPS(true); // Force KPS update when resetting
         }
     }
     
@@ -398,13 +489,15 @@ document.addEventListener("DOMContentLoaded", () => {
             upgradeEl.className = `upgrade-item ${upgrade.unlocked ? '' : 'hidden'}`;
             upgradeEl.dataset.upgradeId = upgrade.id;
             
+            // Add lazy loading to images for better performance
+            const imgTag = upgrade.image ? 
+                `<img src="${upgrade.image}" alt="${upgrade.name}" loading="lazy">` : 
+                `<div class="placeholder-text">${upgrade.id.toUpperCase()}</div>`;
+            
             upgradeEl.innerHTML = `
                 <div class="upgrade-header">
                     <div class="upgrade-image">
-                        ${upgrade.image ? 
-                            `<img src="${upgrade.image}" alt="${upgrade.name}">` : 
-                            `<div class="placeholder-text">${upgrade.id.toUpperCase()}</div>`
-                        }
+                        ${imgTag}
                     </div>
                     <div class="upgrade-info">
                         <h4 class="upgrade-name">${upgrade.name}</h4>
@@ -493,7 +586,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         updateCounterOnly();
         updateButtonStates();
-        updateKPS(); // Update KPS after buying upgrade
+        updateKPS(true); // Force KPS update after buying upgrade
         
         saveToLocalStorage();
     }
@@ -539,6 +632,9 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCounterOnly();
         updateButtonStates();
         
+        // Update KPS with throttling
+        updateKPS(false);
+        
         if (needsRender) {
             renderUpgrades();
             needsRender = false;
@@ -553,66 +649,28 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // ==================== INITIALIZATION ====================
     function init() {
-        console.log('=== INITIALIZING KIRK CLICKER ===');
-        console.log('KPS Counter found:', !!elements.kpsCounter);
-        console.log('KPS Value found:', !!elements.kpsValue);
+        console.log('=== INITIALIZING KIRK CLICKER V2 ===');
+        console.log('Total upgrades:', gameState.upgrades.length);
         
         initUpgradeMap();
         
         const savedData = loadFromLocalStorage();
         if (savedData) {
             applySave(savedData);
-            console.log('Loaded saved game');
+            console.log('Loaded saved game (v' + (savedData.version || 1) + ')');
         } else {
             console.log('Starting fresh game');
         }
         
         renderUpgrades();
         updateCounterOnly();
-        updateKPS(); // Initialize KPS display
+        updateKPS(true); // Force initial KPS update
         
-        // Force update KPS immediately to test
-        setTimeout(() => {
-            console.log('Testing KPS update...');
-            updateKPS();
-            
-            // Manual test: try to update the KPS display directly
-            if (elements.kpsValue) {
-                console.log('Direct KPS update test');
-                elements.kpsValue.textContent = 'TEST 5.25';
-                elements.kpsValue.style.color = 'red';
-                elements.kpsValue.style.fontSize = '24px';
-            }
-        }, 500);
-        
+        // Start game loop
         setInterval(gameLoop, 100);
         
-        console.log('Kirk Clicker initialized');
+        console.log('Kirk Clicker V2 initialized with all new upgrades!');
     }
-    
-    // Add manual test button for debugging
-    const testButton = document.createElement('button');
-    testButton.textContent = 'TEST KPS';
-    testButton.style.position = 'fixed';
-    testButton.style.bottom = '10px';
-    testButton.style.right = '10px';
-    testButton.style.zIndex = '9999';
-    testButton.style.padding = '10px';
-    testButton.style.background = 'red';
-    testButton.style.color = 'white';
-    testButton.addEventListener('click', () => {
-        console.log('=== MANUAL KPS TEST ===');
-        console.log('elements.kpsValue:', elements.kpsValue);
-        console.log('elements.kpsCounter:', elements.kpsCounter);
-        console.log('KPS calculated:', calculateIncomePerSecond());
-        
-        if (elements.kpsValue) {
-            elements.kpsValue.textContent = 'TEST ' + calculateIncomePerSecond().toFixed(2);
-            elements.kpsValue.style.color = 'red';
-            elements.kpsValue.style.fontSize = '24px';
-        }
-    });
-    document.body.appendChild(testButton);
     
     init();
 });

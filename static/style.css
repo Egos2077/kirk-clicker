@@ -8,7 +8,7 @@
 }
 
 body {
-    background-image: url('background.jpg'); /* CHANGED: was '/static/background.jpg' */
+    background-image: url('background.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -153,6 +153,35 @@ body {
 }
 
 .income-pulse {
+    animation: incomePulse 0.3s ease-in-out !important;
+    animation-fill-mode: both !important;
+}
+
+/* KPS Counter - matches existing design language */
+.kps-counter {
+    font-size: 1.5rem;
+    color: #111;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+    font-family: Arial, sans-serif;
+}
+
+.kps-label {
+    color: #111;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+#kpsValue {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    margin-left: 0.25rem;
+}
+
+/* Pulse uses your existing incomePulse keyframes */
+.kps-counter.income-pulse {
     animation: incomePulse 0.3s ease-in-out !important;
     animation-fill-mode: both !important;
 }
@@ -547,25 +576,17 @@ body {
         font-size: 1rem;
     }
 }
-/* KPS Counter */
-.kps-counter {
-    font-size: 1.5rem;
-    color: #51cf66;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    text-shadow: 0 0 10px rgba(81, 207, 102, 0.5);
+/* ALPHA release text */
+.alpha-release {
+    position: fixed;
+    left: 12px;
+    bottom: 12px;
+    color: #666;
+    font-size: 1.3rem;
     font-family: Arial, sans-serif;
-}
-
-.kps-label {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: normal;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* Make sure the income-pulse animation works for KPS too */
-.kps-counter.income-pulse {
-    animation: incomePulse 0.3s ease-in-out !important;
-    animation-fill-mode: both !important;
+    font-weight: 600;
+    opacity: 0.95;
+    z-index: 1000;
+    pointer-events: none;
+    text-shadow: 1px 1px 3px rgb(77, 77, 77);
 }
