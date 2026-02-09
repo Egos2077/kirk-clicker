@@ -125,6 +125,21 @@
         .me-3 {
             margin-right: 1rem;
         }
+        
+        /* KPS Counter Styles */
+        .kps-counter {
+            font-size: 1.2rem;
+            color: #51cf66;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(81, 207, 102, 0.4);
+        }
+        
+        .kps-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -154,6 +169,11 @@
             <div class="col-lg-6 mb-4">
                 <div class="kirk-box">
                     <h1 id="counter" class="counter">0 Kirks</h1>
+                    <!-- KPS Counter added here -->
+                    <div id="kpsCounter" class="kps-counter">
+                        <span class="kps-label">Kirks per second: </span>
+                        <span id="kpsValue">0</span>
+                    </div>
                     <img id="kirkButton" class="clickable-image img-fluid" 
                          src="static/kirk.jpg" alt="Clickable Kirk">
                 </div>

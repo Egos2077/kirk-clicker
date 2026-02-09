@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const elements = {
         kirkButton: document.getElementById('kirkButton'),
         counter: document.getElementById('counter'),
+        kpsCounter: document.getElementById('kpsCounter'),
+        kpsValue: document.getElementById('kpsValue'),
         upgradesContainer: document.getElementById('upgradesContainer'),
         authStatus: document.getElementById('authStatus'),
         btnSave: document.getElementById('btnSave'),
@@ -85,6 +87,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return Math.floor(num).toString();
     }
     
+    function formatDecimal(num) {
+        if (num >= 1000) return formatNumber(num);
+        if (num >= 100) return num.toFixed(0);
+        if (num >= 10) return num.toFixed(1);
+        if (num >= 1) return num.toFixed(2);
+        if (num >= 0.1) return num.toFixed(3);
+        if (num >= 0.01) return num.toFixed(4);
+        return num.toFixed(5);
+    }
+    
     function showStatusMessage(message, duration = 1500) {
         if (!elements.authStatus) return;
         
@@ -102,22 +114,32 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!elements.gunshotSound) return;
         
         try {
-            // Reset sound to beginning in case it's still playing
             elements.gunshotSound.currentTime = 0;
-            
-            // Play the sound
             const playPromise = elements.gunshotSound.play();
             
-            // Handle autoplay restrictions
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
                     console.log('Audio play failed:', error);
-                    // Silently fail - some browsers block autoplay
                 });
             }
         } catch (error) {
             console.log('Sound error:', error);
-            // Silently fail - audio not critical to gameplay
+        }
+    }
+    
+    // Update KPS display
+    function updateKPS() {
+        if (!elements.kpsValue) return;
+        
+        const incomePerSecond = calculateIncomePerSecond();
+        elements.kpsValue.textContent = formatDecimal(incomePerSecond);
+        
+        // Add visual feedback when KPS increases
+        if (incomePerSecond > 0) {
+            elements.kpsCounter.classList.add('income-pulse');
+            setTimeout(() => {
+                elements.kpsCounter.classList.remove('income-pulse');
+            }, 300);
         }
     }
     
@@ -215,6 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
         initUpgradeMap();
         needsRender = true;
         updateCounterOnly();
+        updateKPS(); // Update KPS when loading a save
     }
     
     function saveGame() {
@@ -319,6 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
             needsRender = true;
             
             showStatusMessage('Game reset!');
+            updateKPS(); // Update KPS when resetting
         }
     }
     
@@ -415,7 +439,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCounterOnly();
         updateButtonStates();
         
-        // Play gunshot sound for manual click
         playGunshot();
         
         if (elements.kirkButton) {
@@ -456,6 +479,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         updateCounterOnly();
         updateButtonStates();
+        updateKPS(); // Update KPS after buying upgrade
         
         saveToLocalStorage();
     }
@@ -527,11 +551,11 @@ document.addEventListener("DOMContentLoaded", () => {
         
         renderUpgrades();
         updateCounterOnly();
+        updateKPS(); // Initialize KPS display
         
         setInterval(gameLoop, 100);
         
         console.log('Kirk Clicker initialized');
-        console.log('Sound loaded:', elements.gunshotSound ? 'Yes' : 'No');
     }
     
     init();
