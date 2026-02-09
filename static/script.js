@@ -150,11 +150,38 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // ==================== UTILITY FUNCTIONS ====================
     function formatNumber(num) {
-        if (num >= 1000000000000) return (num / 1000000000000).toFixed(1).replace('.0', '') + 'T';
-        if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace('.0', '') + 'B';
-        if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'K';
-        return Math.floor(num).toString();
+        // Large number suffixes
+        const suffixes = [
+            '', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 
+            'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod',
+            'Vg', 'Uvg', 'Dvg', 'Tvg', 'Qavg', 'Qivg', 'Sxvg', 'Spvg', 'Ocvg', 'Novg',
+            'Tg', 'Utg', 'Dtg', 'Ttg', 'Qatg', 'Qitg', 'Sxtg', 'Sptg', 'Octg', 'Notg'
+        ];
+        
+        // If number is less than 1000, just return it
+        if (num < 1000) return Math.floor(num).toString();
+        
+        // Calculate which suffix to use
+        const tier = Math.floor(Math.log10(Math.abs(num)) / 3);
+        
+        // If tier is too high, use scientific notation as fallback
+        if (tier >= suffixes.length) {
+            return num.toExponential(3);
+        }
+        
+        // Get suffix and scale the number
+        const suffix = suffixes[tier];
+        const scale = Math.pow(10, tier * 3);
+        const scaled = num / scale;
+        
+        // Format with appropriate decimal places
+        if (scaled < 10) {
+            return scaled.toFixed(2).replace(/\.?0+$/, '') + suffix;
+        } else if (scaled < 100) {
+            return scaled.toFixed(1).replace(/\.0$/, '') + suffix;
+        } else {
+            return scaled.toFixed(0) + suffix;
+        }
     }
     
     function formatDecimal(num) {
